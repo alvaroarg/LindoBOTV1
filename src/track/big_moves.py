@@ -3,6 +3,7 @@ import asyncio
 import websockets
 import json
 from datetime import datetime
+import csv
 
 # Define the trading pairs we are interested in
 trading_pairs = ['btcusdt', 'ethusdt', 'solusdt', 'bnbusdt', 'coinusdt']
@@ -10,16 +11,34 @@ trading_pairs = ['btcusdt', 'ethusdt', 'solusdt', 'bnbusdt', 'coinusdt']
 # Binance WebSocket base URL
 binance_ws_url = "wss://stream.binance.com:9443/ws/"
 
-# Function to handle incoming WebSocket messages
+tracking_limit = 500
+
+csv_file = 'C:\\Users\\Alvaro\\Documents\\LindoBOTV1\\data\\trades.csv'
+
+def initialize_csv():
+    with open(csv_file, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Timestamp", "Pair", "Trade ID", "Price in USD", "Quantity", "Volume", "Buyer"])
+
 async def handle_message(pair, message):
     data = json.loads(message)
     if data.get('e') == 'trade':
         timestamp = datetime.utcfromtimestamp(data['T'] / 1000).strftime('%Y-%m-%d %H:%M:%S')
         trade_id = data['t']
-        price = data['p']
-        quantity = data['q']
+        price = float(data['p'])
+        quantity = float(data['q'])
+        volume = quantity * price
         buyer = data['m']
-        print(f"Pair: {pair.upper()} | Trade ID: {data['t']} | Price: {data['p']} | Quantity: {data['q']} | Buyer: {data['m']}")
+        
+        if volume > tracking_limit:
+        
+            # Write the trade data to the CSV file
+            with open(csv_file, mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([timestamp, pair.upper(), trade_id, price, quantity, volume ,buyer])
+
+                print(f"Pair: {pair.upper()} | Trade ID: {trade_id} | Price: {price} | Quantity: {quantity} | Volume:{volume} |Buyer: {data['m']}")
+
 
 # Function to subscribe to a WebSocket stream
 async def subscribe(pair):
@@ -30,6 +49,7 @@ async def subscribe(pair):
 
 # Main function to run the WebSocket client
 async def main():
+    initialize_csv()
     # Create tasks for each trading pair subscription
     tasks = [subscribe(pair) for pair in trading_pairs]
     await asyncio.gather(*tasks)
