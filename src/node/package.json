@@ -1,0 +1,23 @@
+{
+  "name": "solana-mempool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@solana/web3.js": "^1.92.3",
+    "axios": "^1.7.2",
+    "axios-retry": "^4.4.0",
+    "csv-writer": "^1.6.0",
+    "https-proxy-agent": "^7.0.4",
+    "node-fetch": "^2.7.0",
+    "proxy-agent": "^6.4.0",
+    "ws": "^8.17.0"
+  }
+}
